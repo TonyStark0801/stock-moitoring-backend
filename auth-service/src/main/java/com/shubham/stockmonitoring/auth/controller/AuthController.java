@@ -1,0 +1,42 @@
+package com.shubham.stockmonitoring.auth.controller;
+
+import com.shubham.stockmonitoring.auth.dto.AuthResponse;
+import com.shubham.stockmonitoring.auth.dto.LoginRequest;
+import com.shubham.stockmonitoring.auth.dto.RegisterRequest;
+import com.shubham.stockmonitoring.auth.service.AuthService;
+import com.shubham.stockmonitoring.commons.dto.BaseResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+    
+    private final AuthService authService;
+    
+    @PostMapping("/register")
+    public ResponseEntity<BaseResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.ok(BaseResponse.success("User registered successfully", response));
+    }
+    
+    @PostMapping("/login")
+    public ResponseEntity<BaseResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(BaseResponse.success("Login successful", response));
+    }
+    
+    @PostMapping("/validate")
+    public ResponseEntity<BaseResponse<String>> validateToken(@RequestHeader("Authorization") String token) {
+        String userId = authService.validateToken(token);
+        return ResponseEntity.ok(BaseResponse.success("Token is valid", userId));
+    }
+    
+    @GetMapping("/health")
+    public ResponseEntity<BaseResponse<String>> health() {
+        return ResponseEntity.ok(BaseResponse.success("Auth service is healthy", "OK"));
+    }
+}
