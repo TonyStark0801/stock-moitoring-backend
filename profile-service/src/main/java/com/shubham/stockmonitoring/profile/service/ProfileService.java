@@ -4,7 +4,7 @@ import com.shubham.stockmonitoring.profile.dto.ProfileRequest;
 import com.shubham.stockmonitoring.profile.dto.ProfileResponse;
 import com.shubham.stockmonitoring.profile.entity.UserProfile;
 import com.shubham.stockmonitoring.profile.repository.UserProfileRepository;
-import com.shubham.stockmonitoring.commons.exception.BusinessException;
+import com.shubham.stockmonitoring.commons.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +16,14 @@ public class ProfileService {
     
     public ProfileResponse getProfile(Long userId) {
         UserProfile profile = profileRepository.findByUserId(userId)
-            .orElseThrow(() -> new BusinessException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
+            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
         
         return mapToResponse(profile);
     }
     
     public ProfileResponse createProfile(Long userId, ProfileRequest request) {
         if (profileRepository.existsByUserId(userId)) {
-            throw new BusinessException("PROFILE_EXISTS", "Profile already exists for user: " + userId);
+            throw new CustomException("PROFILE_EXISTS", "Profile already exists for user: " + userId);
         }
         
         UserProfile profile = new UserProfile();
@@ -36,7 +36,7 @@ public class ProfileService {
     
     public ProfileResponse updateProfile(Long userId, ProfileRequest request) {
         UserProfile profile = profileRepository.findByUserId(userId)
-            .orElseThrow(() -> new BusinessException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
+            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
         
         mapRequestToEntity(request, profile);
         UserProfile updatedProfile = profileRepository.save(profile);
@@ -46,7 +46,7 @@ public class ProfileService {
     
     public void deleteProfile(Long userId) {
         UserProfile profile = profileRepository.findByUserId(userId)
-            .orElseThrow(() -> new BusinessException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
+            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
         
         profileRepository.delete(profile);
     }

@@ -5,12 +5,14 @@ import com.shubham.stockmonitoring.auth.dto.LoginRequest;
 import com.shubham.stockmonitoring.auth.dto.RegisterRequest;
 import com.shubham.stockmonitoring.auth.entity.User;
 import com.shubham.stockmonitoring.auth.repository.UserRepository;
-import com.shubham.stockmonitoring.commons.exception.BusinessException;
-import lombok.RequiredArgsConstructor;
+import com.shubham.stockmonitoring.commons.exception.CustomException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,24 +22,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    
+
     public AuthResponse register(RegisterRequest request) {
-        // Check if user already exists
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BusinessException("USERNAME_EXISTS", "Username already exists");
+        Optional<User> user = userRepository.findByUsernameOrEmail(request.getUsername(), request.getEmail());
+        if (user.isPresent()) {
+            throw new CustomException("USER_EXISTS", "Username already exists");
         }
-        
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException("EMAIL_EXISTS", "Email already exists");
-        }
-        
-        // Create new user
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        
-        User savedUser = userRepository.save(user);
+
+        User newUser = new User();
+        newUser.setUsername(request.getUsername());
+        newUser.setEmail(request.getEmail());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        User savedUser = userRepository.save(newUser);
         
         // Generate JWT token
         String token = jwtService.generateToken(savedUser);
@@ -63,7 +59,7 @@ public class AuthService {
         
         // Get user details
         User user = userRepository.findByUsername(request.getUsername())
-            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
+            .orElseThrow(() -> new CustomException("USER_NOT_FOUND", "User not found"));
         
         // Generate JWT token
         String token = jwtService.generateToken(user);
@@ -85,10 +81,10 @@ public class AuthService {
         
         String username = jwtService.extractUsername(token);
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new BusinessException("INVALID_TOKEN", "Invalid token"));
+            .orElseThrow(() -> new CustomException("INVALID_TOKEN", "Invalid token"));
         
         if (!jwtService.isTokenValid(token, user)) {
-            throw new BusinessException("INVALID_TOKEN", "Token is invalid or expired");
+            throw new CustomException("INVALID_TOKEN", "Token is invalid or expired");
         }
         
         return user.getId().toString();

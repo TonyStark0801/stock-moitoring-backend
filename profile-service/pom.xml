@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.3</version>
+		<version>3.4.10</version>
 		<relativePath/>
 	</parent>
 	
@@ -16,16 +16,12 @@
 	<description>User Profile Management Service</description>
 	
 	<properties>
-		<java.version>24</java.version>
+		<java.version>21</java.version>
+		<lombok.version>1.18.34</lombok.version>
 	</properties>
 	
 	<dependencies>
 		<!-- Shared Commons -->
-		<dependency>
-			<groupId>com.shubham</groupId>
-			<artifactId>stock-commons</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		
 		<!-- Spring Boot Starters -->
 		<dependency>
@@ -64,6 +60,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.shubham</groupId>
+			<artifactId>stock-commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	

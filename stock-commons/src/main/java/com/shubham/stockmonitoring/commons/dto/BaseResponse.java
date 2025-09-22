@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseResponse<T> {
     private boolean success;
@@ -16,7 +15,15 @@ public class BaseResponse<T> {
     private T data;
     private LocalDateTime timestamp;
     private String errorCode;
-    
+
+    public BaseResponse(boolean success, String message, T data, LocalDateTime timestamp, String errorCode) {
+        this.success = success;
+        this.message = message;
+        this.data = data;
+        this.timestamp = timestamp;
+        this.errorCode = errorCode;
+    }
+
     public static <T> BaseResponse<T> success(T data) {
         return new BaseResponse<>(true, "Success", data, LocalDateTime.now(), null);
     }
