@@ -19,7 +19,7 @@ stock-monitoring/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Java 24
+- Java 21
 - Maven 3.8+
 - Docker & Docker Compose
 - PostgreSQL (for local development)
