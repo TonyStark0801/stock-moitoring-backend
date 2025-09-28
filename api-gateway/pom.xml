@@ -22,6 +22,20 @@
 	</properties>
 	
 	<dependencies>
+
+		<!-- Stock common utils -->
+		<dependency>
+			<groupId>com.shubham</groupId>
+			<artifactId>stock-commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Spring Cloud Gateway -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

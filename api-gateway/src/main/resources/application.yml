@@ -10,7 +10,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowed-origins: 
+            allowed-origins:
               - "http://localhost:3000"
               - "https://stock-monitoring-frontend.vercel.app"
             allowed-methods:
@@ -29,7 +29,7 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=2
-            
+
         - id: profile-service
           uri: http://localhost:8082
           predicates:
@@ -37,19 +37,22 @@ spring:
           filters:
             - StripPrefix=2
             - AddRequestHeader=X-Service, profile
-            
+
         - id: master-data-service
           uri: http://localhost:8083
           predicates:
-            - Path=/api/stocks/**, /api/exchanges/**, /api/sectors/**
+                        - Path=/api/stocks/**
+            - Path=/api/exchanges/**
+            - Path=/api/sectors/**
           filters:
             - StripPrefix=2
             - AddRequestHeader=X-Service, master-data
 
-  redis:
-    host: localhost
-    port: 6379
-    timeout: 2000ms
+  data:
+    redis:
+      timeout: 2s
+      port: 6379
+      host: localhost
 
 management:
   endpoints:
