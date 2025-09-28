@@ -5,9 +5,11 @@ import com.shubham.stockmonitoring.masterdata.dto.StockResponse;
 import com.shubham.stockmonitoring.masterdata.entity.Stock;
 import com.shubham.stockmonitoring.masterdata.repository.StockRepository;
 import com.shubham.stockmonitoring.commons.exception.CustomException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,13 +28,13 @@ public class StockService {
     
     public StockResponse getStockById(Long id) {
         Stock stock = stockRepository.findById(id)
-            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with id: " + id));
+            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with id: " + id, HttpStatus.BAD_REQUEST));
         return mapToResponse(stock);
     }
     
     public StockResponse getStockBySymbol(String symbol) {
         Stock stock = stockRepository.findBySymbol(symbol)
-            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with symbol: " + symbol));
+            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with symbol: " + symbol, HttpStatus.BAD_REQUEST));
         return mapToResponse(stock);
     }
     
@@ -52,30 +54,25 @@ public class StockService {
     
     public StockResponse createStock(StockRequest request) {
         if (stockRepository.findBySymbol(request.getSymbol()).isPresent()) {
-            throw new CustomException("STOCK_EXISTS", "Stock already exists with symbol: " + request.getSymbol());
+            throw new CustomException("STOCK_EXISTS", "Stock already exists with symbol: " + request.getSymbol(), HttpStatus.BAD_REQUEST);
         }
-        
         Stock stock = new Stock();
         mapRequestToEntity(request, stock);
-        
         Stock savedStock = stockRepository.save(stock);
         return mapToResponse(savedStock);
     }
     
     public StockResponse updateStock(Long id, StockRequest request) {
         Stock stock = stockRepository.findById(id)
-            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with id: " + id));
-        
+            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with id: " + id, HttpStatus.BAD_REQUEST));
         mapRequestToEntity(request, stock);
         Stock updatedStock = stockRepository.save(stock);
-        
         return mapToResponse(updatedStock);
     }
     
     public void deleteStock(Long id) {
         Stock stock = stockRepository.findById(id)
-            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with id: " + id));
-        
+            .orElseThrow(() -> new CustomException("STOCK_NOT_FOUND", "Stock not found with id: " + id, HttpStatus.BAD_REQUEST));
         stockRepository.delete(stock);
     }
     

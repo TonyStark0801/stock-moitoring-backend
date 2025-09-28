@@ -6,6 +6,7 @@ import com.shubham.stockmonitoring.profile.entity.UserProfile;
 import com.shubham.stockmonitoring.profile.repository.UserProfileRepository;
 import com.shubham.stockmonitoring.commons.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,38 +17,32 @@ public class ProfileService {
     
     public ProfileResponse getProfile(Long userId) {
         UserProfile profile = profileRepository.findByUserId(userId)
-            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
-        
+            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId, HttpStatus.BAD_REQUEST));
         return mapToResponse(profile);
     }
     
     public ProfileResponse createProfile(Long userId, ProfileRequest request) {
         if (profileRepository.existsByUserId(userId)) {
-            throw new CustomException("PROFILE_EXISTS", "Profile already exists for user: " + userId);
+            throw new CustomException("PROFILE_EXISTS", "Profile already exists for user: " + userId, HttpStatus.BAD_REQUEST);
         }
-        
         UserProfile profile = new UserProfile();
         profile.setUserId(userId);
         mapRequestToEntity(request, profile);
-        
         UserProfile savedProfile = profileRepository.save(profile);
         return mapToResponse(savedProfile);
     }
     
     public ProfileResponse updateProfile(Long userId, ProfileRequest request) {
         UserProfile profile = profileRepository.findByUserId(userId)
-            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
-        
+            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId, HttpStatus.BAD_REQUEST));
         mapRequestToEntity(request, profile);
         UserProfile updatedProfile = profileRepository.save(profile);
-        
         return mapToResponse(updatedProfile);
     }
     
     public void deleteProfile(Long userId) {
         UserProfile profile = profileRepository.findByUserId(userId)
-            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId));
-        
+            .orElseThrow(() -> new CustomException("PROFILE_NOT_FOUND", "Profile not found for user: " + userId, HttpStatus.BAD_REQUEST));
         profileRepository.delete(profile);
     }
     

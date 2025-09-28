@@ -5,14 +5,15 @@ A comprehensive microservices architecture for stock monitoring application with
 ## 📁 Project Structure
 
 ```
-stock-monitoring/
+stock-moitoring-backend/
 ├── stock-commons/              # Shared library with common DTOs and utilities
 ├── api-gateway/               # API Gateway for routing and security
 ├── auth-service/              # Authentication & Authorization service
 ├── profile-service/           # User profile management service
 ├── master-data-service/       # Stock data and reference data service
 ├── docker-compose.yml         # Multi-service orchestration
-├── build-all.sh              # Build script for all services
+├── build.ps1                 # PowerShell build script for all services
+├── build-all.sh              # Bash build script for all services
 └── README.md
 ```
 
@@ -25,6 +26,13 @@ stock-monitoring/
 - PostgreSQL (for local development)
 
 ### 1. Build All Services
+
+**For Windows (PowerShell):**
+```powershell
+.\build.ps1
+```
+
+**For Linux/Mac:**
 ```bash
 ./build-all.sh
 ```
@@ -36,9 +44,9 @@ docker-compose up -d
 
 ### 3. Access Services
 - **API Gateway**: http://localhost:8080
-- **Auth Service**: http://localhost:8081
-- **Profile Service**: http://localhost:8082
-- **Master Data Service**: http://localhost:8083
+- **Auth Service**: http://localhost:8081/v1/api
+- **Profile Service**: http://localhost:8082/v1/api  
+- **Master Data Service**: http://localhost:8083/v1/api
 
 ## 🔧 Service Details
 
@@ -47,41 +55,46 @@ docker-compose up -d
 - JWT token generation and validation
 - Role-based access control
 - **Endpoints**:
-  - `POST /api/auth/register` - User registration
-  - `POST /api/auth/login` - User login
-  - `POST /api/auth/validate` - Token validation
+  - `POST /v1/api/auth/register` - User registration
+  - `POST /v1/api/auth/login` - User login
+  - `POST /v1/api/auth/validate` - Token validation
+  - `GET /v1/api/auth/health` - Health check
 
 ### 👤 Profile Service (Port 8082)
 - User profile management
 - Personal information updates
 - User preferences
 - **Endpoints**:
-  - `GET /api/profile/{userId}` - Get user profile
-  - `POST /api/profile/{userId}` - Create profile
-  - `PUT /api/profile/{userId}` - Update profile
-  - `DELETE /api/profile/{userId}` - Delete profile
+  - `GET /v1/api/profile/{userId}` - Get user profile
+  - `POST /v1/api/profile/{userId}` - Create profile
+  - `PUT /v1/api/profile/{userId}` - Update profile
+  - `DELETE /v1/api/profile/{userId}` - Delete profile
+  - `GET /v1/api/profile/health` - Health check
 
 ### 📊 Master Data Service (Port 8083)
 - Stock information management
 - Exchange and sector data
 - Stock search and filtering
 - **Endpoints**:
-  - `GET /api/stocks` - Get all stocks
-  - `GET /api/stocks/{id}` - Get stock by ID
-  - `GET /api/stocks/symbol/{symbol}` - Get stock by symbol
-  - `GET /api/stocks/search?query={query}` - Search stocks
-  - `POST /api/stocks` - Create stock
-  - `PUT /api/stocks/{id}` - Update stock
-  - `DELETE /api/stocks/{id}` - Delete stock
+  - `GET /v1/api/stocks` - Get all stocks
+  - `GET /v1/api/stocks/{id}` - Get stock by ID
+  - `GET /v1/api/stocks/symbol/{symbol}` - Get stock by symbol
+  - `GET /v1/api/stocks/search?query={query}` - Search stocks
+  - `POST /v1/api/stocks` - Create stock
+  - `PUT /v1/api/stocks/{id}` - Update stock
+  - `DELETE /v1/api/stocks/{id}` - Delete stock
+  - `GET /v1/api/stocks/health` - Health check
 
 ### 🌐 API Gateway (Port 8080)
 - Routes requests to appropriate services
 - Centralized entry point
-- Request/Response logging
+- CORS configuration for frontend access
 - **Routes**:
-  - `/api/auth/**` → Auth Service
-  - `/api/profile/**` → Profile Service
-  - `/api/stocks/**` → Master Data Service
+  - `/v1/api/auth/**` → Auth Service
+  - `/v1/api/profile/**` → Profile Service  
+  - `/v1/api/stocks/**` → Master Data Service
+  - `/v1/api/exchanges/**` → Master Data Service
+  - `/v1/api/sectors/**` → Master Data Service
 
 ## 🗄️ Database Schema
 
@@ -122,23 +135,40 @@ docker-compose up -d
    ```
 
 ### Testing
+
+**Using cURL:**
 ```bash
-# Test auth service
-curl -X POST http://localhost:8081/api/auth/register \
+# Test auth service directly
+curl -X POST http://localhost:8081/v1/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","email":"test@example.com","password":"password123"}'
 
 # Test through API Gateway
-curl -X POST http://localhost:8080/api/auth/register \
+curl -X POST http://localhost:8080/v1/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","email":"test@example.com","password":"password123"}'
+```
+
+**Using PowerShell:**
+```powershell
+# Register user through API Gateway
+$body = @{ 
+  username = "testuser"
+  email = "test@example.com" 
+  password = "password123" 
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8080/v1/api/auth/register" -Method POST -Body $body -ContentType "application/json"
+
+# Test health endpoints
+Invoke-RestMethod -Uri "http://localhost:8080/v1/api/auth/health" -Method GET
 ```
 
 ## 📝 API Documentation
 
 ### Authentication Flow
-1. Register user: `POST /api/auth/register`
-2. Login: `POST /api/auth/login`
+1. Register user: `POST /v1/api/auth/register`
+2. Login: `POST /v1/api/auth/login`
 3. Use JWT token in Authorization header: `Bearer <token>`
 4. Access protected endpoints
 
@@ -159,9 +189,36 @@ curl -X POST http://localhost:8080/api/auth/register \
 - `SPRING_DATASOURCE_URL` - Database connection URL
 - `JWT_SECRET` - JWT signing secret
 - `JWT_EXPIRATION` - JWT expiration time
+- `SPRING_PROFILES_ACTIVE` - Active profile (docker, dev, prod)
 
 ### Application Properties
-Each service has its own `application.yml` with service-specific configurations.
+Each service has its own `application.yml` with service-specific configurations:
+- **Default profile**: Configured for localhost development
+- **Docker profile**: Uses container service names for inter-service communication
+
+### Global Exception Handling
+All services include the `stock-commons` module for:
+- **Centralized exception handling** with `@RestControllerAdvice`
+- **Custom exception classes** (`CustomException`)
+- **Consistent error response format**
+- **Proper HTTP status code mapping**
+
+## 🔧 Recent Improvements
+
+### ✅ Fixed Global Exception Handler
+- Updated all microservice applications to scan the `stock-commons` package
+- Ensures `CustomException` and other common exceptions are properly handled
+- Provides consistent error responses across all services
+
+### ✅ API Gateway Configuration
+- Fixed routing configuration for Docker containers
+- Added `application-docker.yml` with proper service discovery
+- Corrected path stripping for microservice endpoints
+
+### ✅ Enhanced Error Handling
+- Custom exceptions now return meaningful error messages
+- Proper HTTP status codes (400, 401, 404, etc.)
+- Consistent error response structure
 
 ## 🚀 Deployment
 
@@ -175,6 +232,51 @@ Each service has its own `application.yml` with service-specific configurations.
 - Health checks: `/actuator/health`
 - Metrics: `/actuator/metrics`
 - Gateway routes: `/actuator/gateway/routes`
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**1. Port Already in Use**
+```bash
+# Check what's using the port
+netstat -ano | findstr :8080
+# Kill the process
+taskkill /PID <PID> /F
+```
+
+**2. Docker Container Issues**
+```bash
+# Check container logs
+docker logs <container-name>
+
+# Restart specific service
+docker-compose restart <service-name>
+
+# Rebuild and restart
+docker-compose up <service-name> --build -d
+```
+
+**3. Database Connection Issues**
+- Ensure PostgreSQL containers are running
+- Check database URLs in `application.yml`
+- Verify network connectivity between containers
+
+**4. Exception Not Handled**
+- Verify `@SpringBootApplication` includes `scanBasePackages`
+- Check that `stock-commons` dependency is included
+- Ensure `GlobalExceptionHandler` is in the classpath
+
+### Health Check Endpoints
+```bash
+# API Gateway
+curl http://localhost:8080/actuator/health
+
+# Individual Services
+curl http://localhost:8081/v1/api/auth/health
+curl http://localhost:8082/v1/api/profile/health  
+curl http://localhost:8083/v1/api/stocks/health
+```
 
 ## 🤝 Contributing
 

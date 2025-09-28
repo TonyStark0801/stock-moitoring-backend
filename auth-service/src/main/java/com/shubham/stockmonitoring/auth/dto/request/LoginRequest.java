@@ -1,4 +1,4 @@
-package com.shubham.stockmonitoring.auth.dto;
+package com.shubham.stockmonitoring.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

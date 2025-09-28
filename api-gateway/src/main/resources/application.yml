@@ -26,14 +26,14 @@ spring:
         - id: auth-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/auth/**
+            - Path=/v1/api/auth/**
           filters:
             - StripPrefix=2
 
         - id: profile-service
           uri: http://localhost:8082
           predicates:
-            - Path=/api/profile/**
+            - Path=/v1/api/profile/**
           filters:
             - StripPrefix=2
             - AddRequestHeader=X-Service, profile
@@ -41,9 +41,9 @@ spring:
         - id: master-data-service
           uri: http://localhost:8083
           predicates:
-                        - Path=/api/stocks/**
-            - Path=/api/exchanges/**
-            - Path=/api/sectors/**
+            - Path=/v1/api/stocks/**
+            - Path=/v1/api/exchanges/**
+            - Path=/v1/api/sectors/**
           filters:
             - StripPrefix=2
             - AddRequestHeader=X-Service, master-data

@@ -1,8 +1,8 @@
 package com.shubham.stockmonitoring.auth.controller;
 
-import com.shubham.stockmonitoring.auth.dto.AuthResponse;
-import com.shubham.stockmonitoring.auth.dto.LoginRequest;
-import com.shubham.stockmonitoring.auth.dto.RegisterRequest;
+import com.shubham.stockmonitoring.auth.dto.response.AuthResponse;
+import com.shubham.stockmonitoring.auth.dto.request.LoginRequest;
+import com.shubham.stockmonitoring.auth.dto.request.RegisterRequest;
 import com.shubham.stockmonitoring.auth.service.AuthService;
 import com.shubham.stockmonitoring.commons.dto.BaseResponse;
 import jakarta.validation.Valid;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     

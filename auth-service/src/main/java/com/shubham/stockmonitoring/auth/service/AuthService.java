@@ -1,11 +1,12 @@
 package com.shubham.stockmonitoring.auth.service;
 
-import com.shubham.stockmonitoring.auth.dto.AuthResponse;
-import com.shubham.stockmonitoring.auth.dto.LoginRequest;
-import com.shubham.stockmonitoring.auth.dto.RegisterRequest;
+import com.shubham.stockmonitoring.auth.dto.response.AuthResponse;
+import com.shubham.stockmonitoring.auth.dto.request.LoginRequest;
+import com.shubham.stockmonitoring.auth.dto.request.RegisterRequest;
 import com.shubham.stockmonitoring.auth.entity.User;
 import com.shubham.stockmonitoring.auth.repository.UserRepository;
 import com.shubham.stockmonitoring.commons.exception.CustomException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
+
+import static com.shubham.stockmonitoring.commons.exception.ErrorType.USER_EXISTS;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +29,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         Optional<User> user = userRepository.findByUsernameOrEmail(request.getUsername(), request.getEmail());
         if (user.isPresent()) {
-            throw new CustomException("USER_EXISTS", "Username already exists");
+            throw new CustomException("USER_EXISTS", "Username already exists", HttpStatus.BAD_REQUEST);
         }
 
         User newUser = new User();
@@ -59,7 +62,7 @@ public class AuthService {
         
         // Get user details
         User user = userRepository.findByUsername(request.getUsername())
-            .orElseThrow(() -> new CustomException("USER_NOT_FOUND", "User not found"));
+            .orElseThrow(() -> new CustomException("USER_NOT_FOUND", "User not found", HttpStatus.BAD_REQUEST));
         
         // Generate JWT token
         String token = jwtService.generateToken(user);
@@ -81,10 +84,10 @@ public class AuthService {
         
         String username = jwtService.extractUsername(token);
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new CustomException("INVALID_TOKEN", "Invalid token"));
+            .orElseThrow(() -> new CustomException("INVALID_TOKEN", "Invalid token", org.springframework.http.HttpStatus.UNAUTHORIZED));
         
         if (!jwtService.isTokenValid(token, user)) {
-            throw new CustomException("INVALID_TOKEN", "Token is invalid or expired");
+            throw new CustomException("INVALID_TOKEN", "Token is invalid or expired", org.springframework.http.HttpStatus.UNAUTHORIZED);
         }
         
         return user.getId().toString();

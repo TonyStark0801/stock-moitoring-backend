@@ -1,22 +1,22 @@
 package com.shubham.stockmonitoring.commons.exception;
 
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
+@Getter
+@Setter
 public class CustomException extends RuntimeException {
-    private final String errorCode;
-    
-    public CustomException(String message) {
-        super(message);
-        this.errorCode = "BUSINESS_ERROR";
+    private final String errorType;
+    private final String customMessage;
+    private final HttpStatus httpStatus;
+
+
+    public CustomException(String errorType, String customMessage, HttpStatus httpStatus) {
+        super(customMessage);
+        this.errorType = errorType;
+        this.customMessage = customMessage;
+        this.httpStatus = httpStatus;
     }
-    
-    public CustomException(String errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
-    }
-    
-    public CustomException(String errorCode, String message, Throwable cause) {
-        super(message, cause);
-        this.errorCode = errorCode;
-    }
+
 }

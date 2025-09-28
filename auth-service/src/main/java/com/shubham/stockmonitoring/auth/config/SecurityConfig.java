@@ -21,20 +21,21 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//            .csrf(AbstractHttpConfigurer::disable)
-//            .authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/health").permitAll()
-//                .anyRequest().authenticated()
-//            )
-//            .sessionManagement(session -> session
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//            );
-//
-//        return http.build();
-//    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/health").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
+
+        return http.build();
+    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -1,4 +1,4 @@
-package com.shubham.stockmonitoring.auth.dto;
+package com.shubham.stockmonitoring.auth.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
