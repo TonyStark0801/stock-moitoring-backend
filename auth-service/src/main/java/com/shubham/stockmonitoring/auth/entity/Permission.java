@@ -1,9 +1,5 @@
 package com.shubham.stockmonitoring.auth.entity;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public enum Permission {
 
     ADMIN_READ("admin:read"),
@@ -15,6 +11,13 @@ public enum Permission {
     MANAGER_CREATE("management:create"),
     MANAGER_DELETE("management:delete");
 
-    @Getter
     private final String permission;
+
+    private Permission(String permission) {
+        this.permission = permission;
+    }
+
+    public String getPermission() {
+        return permission;
+    }
 }

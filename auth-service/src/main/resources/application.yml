@@ -8,7 +8,7 @@ spring:
     name: auth-service
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/auth_db
+    url: jdbc:postgresql://localhost:5432/stock_monitoring
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -21,6 +21,23 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: anonymousperson6863@gmail.com
+    password: "bvhqgrhbjxtljluu"
+    protocol: smtp
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+
+
+
+
 
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
@@ -35,7 +52,17 @@ management:
     health:
       show-details: always
 
+
+
+
+
+
 logging:
   level:
-    com.shubham.stockmonitoring.auth: DEBUG
-    org.springframework.security: DEBUG
+    root: INFO
+    com.shubham.stockmonitoring.auth: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate: WARN
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss}){faint} %clr(%5p) %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"

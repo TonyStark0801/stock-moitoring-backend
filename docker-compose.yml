@@ -1,59 +1,30 @@
-version: '3.8'
 
 services:
-  # Databases
-  postgres-auth:
+  # Database (shared)
+  postgres:
     image: postgres:15
-    container_name: postgres-auth
+    container_name: stock-postgres
     environment:
-      POSTGRES_DB: auth_db
+      POSTGRES_DB: stock_monitoring
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
-      - postgres_auth_data:/var/lib/postgresql/data
-    networks:
-      - stock-network
-
-  postgres-profile:
-    image: postgres:15
-    container_name: postgres-profile
-    environment:
-      POSTGRES_DB: profile_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_profile_data:/var/lib/postgresql/data
-    networks:
-      - stock-network
-
-  postgres-masterdata:
-    image: postgres:15
-    container_name: postgres-masterdata
-    environment:
-      POSTGRES_DB: masterdata_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_masterdata_data:/var/lib/postgresql/data
+      - stock_postgres_data:/var/lib/postgresql/data
     networks:
       - stock-network
 
   # Redis
   redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: stock-redis
     ports:
       - "6379:6379"
     networks:
       - stock-network
 
-  # Services
+  # API Gateway
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
@@ -62,53 +33,66 @@ services:
     depends_on:
       - redis
     environment:
+      - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
       - SPRING_PROFILES_ACTIVE=docker
+      - LOGGING_LEVEL_ROOT=INFO
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY=INFO
     networks:
       - stock-network
 
+  # Auth Service
   auth-service:
     build: ./auth-service
     container_name: auth-service
     ports:
       - "8081:8081"
     depends_on:
-      - postgres-auth
+      - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/auth_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/stock_monitoring
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     networks:
       - stock-network
 
+  # Profile Service
   profile-service:
     build: ./profile-service
     container_name: profile-service
     ports:
       - "8082:8082"
     depends_on:
-      - postgres-profile
+      - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-profile:5432/profile_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/stock_monitoring
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     networks:
       - stock-network
 
+  # Master Data Service
   master-data-service:
     build: ./master-data-service
     container_name: master-data-service
     ports:
       - "8083:8083"
     depends_on:
-      - postgres-masterdata
+      - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-masterdata:5432/masterdata_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/stock_monitoring
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
     networks:
       - stock-network
 
 volumes:
-  postgres_auth_data:
-  postgres_profile_data:
-  postgres_masterdata_data:
+  stock_postgres_data:
 
 networks:
   stock-network:
